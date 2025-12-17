@@ -1,0 +1,4 @@
+# manpower-ms/pnpm-workspace.yaml
+packages:
+  - 'client'
+  - 'server'
