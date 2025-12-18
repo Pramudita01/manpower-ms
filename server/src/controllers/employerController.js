@@ -1,16 +1,13 @@
-const Employer = require('../models/Employers'); // Double check this filename is exactly Employers.js
+const Employer = require('../models/Employers');
 const { StatusCodes } = require('http-status-codes');
 
+// @desc    Get all employers for a specific company
 exports.getEmployers = async (req, res) => {
     try {
-        // Debugging logs - Check your server terminal!
-        console.log("Full User Object from Token:", req.user);
-
         if (!req.user || !req.user.companyId) {
-            console.error("ERROR: No companyId found in request user object");
             return res.status(StatusCodes.BAD_REQUEST).json({
                 success: false,
-                error: "Company ID is missing from your session. Please log out and back in."
+                error: "Company ID is missing from your session."
             });
         }
 
@@ -23,7 +20,6 @@ exports.getEmployers = async (req, res) => {
             data: employers,
         });
     } catch (error) {
-        console.error("SERVER CRASH ERROR:", error);
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
             success: false,
             error: error.message || 'Internal Server Error',
@@ -31,6 +27,7 @@ exports.getEmployers = async (req, res) => {
     }
 };
 
+// @desc    Create new employer
 exports.createEmployer = async (req, res) => {
     try {
         const { employerName, country, contact, address, notes } = req.body;
@@ -38,7 +35,7 @@ exports.createEmployer = async (req, res) => {
         if (!req.user.companyId || !req.user.userId) {
             return res.status(StatusCodes.UNAUTHORIZED).json({
                 success: false,
-                error: "Authentication data missing. Please log in again."
+                error: "Authentication data missing."
             });
         }
 
@@ -57,8 +54,72 @@ exports.createEmployer = async (req, res) => {
             data: newEmployer,
         });
     } catch (error) {
-        console.error("CREATE ERROR:", error);
         res.status(StatusCodes.BAD_REQUEST).json({
+            success: false,
+            error: error.message,
+        });
+    }
+};
+
+// @desc    Update an employer
+exports.updateEmployer = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { employerName, country, contact, address, notes, status } = req.body;
+
+        let employer = await Employer.findOne({ 
+            _id: id, 
+            companyId: req.user.companyId 
+        });
+
+        if (!employer) {
+            return res.status(StatusCodes.NOT_FOUND).json({
+                success: false,
+                error: "Employer not found or unauthorized"
+            });
+        }
+
+        employer = await Employer.findByIdAndUpdate(
+            id,
+            { employerName, country, contact, address, notes, status },
+            { new: true, runValidators: true }
+        );
+
+        res.status(StatusCodes.OK).json({
+            success: true,
+            data: employer,
+        });
+    } catch (error) {
+        res.status(StatusCodes.BAD_REQUEST).json({
+            success: false,
+            error: error.message,
+        });
+    }
+};
+
+// @desc    Delete an employer
+exports.deleteEmployer = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const employer = await Employer.findOneAndDelete({ 
+            _id: id, 
+            companyId: req.user.companyId 
+        });
+
+        if (!employer) {
+            return res.status(StatusCodes.NOT_FOUND).json({
+                success: false,
+                error: "Employer not found or unauthorized"
+            });
+        }
+
+        res.status(StatusCodes.OK).json({
+            success: true,
+            message: "Employer deleted successfully"
+        });
+    } catch (error) {
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
             success: false,
             error: error.message,
         });
