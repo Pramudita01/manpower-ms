@@ -1,8 +1,5 @@
 "use client";
 
-import React from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 import {
     Briefcase,
     Building2,
@@ -14,15 +11,13 @@ import {
     UserCircle,
     Users
 } from 'lucide-react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
-<<<<<<< HEAD
-export function Sidebar({
-    role,
-    currentPath,
-    onNavigate,
-    onLogout
-}) {
-    // Admin paths updated to match your folder structure
+export function Sidebar({ role, onLogout }) {
+    const pathname = usePathname();
+
+    // Standardized links based on your tenant-admin folder structure
     const adminLinks = [
         { path: '/dashboard/tenant-admin', label: 'Dashboard', icon: LayoutDashboard },
         { path: '/dashboard/tenant-admin/employers', label: 'Employers', icon: Building2 },
@@ -30,29 +25,12 @@ export function Sidebar({
         { path: '/dashboard/tenant-admin/workers', label: 'Workers', icon: UserCircle },
         { path: '/dashboard/tenant-admin/sub-agents', label: 'Sub Agents', icon: UserCheck },
         { path: '/dashboard/tenant-admin/reports', label: 'Reports', icon: FileText },
-=======
-export function Sidebar({ role, onLogout }) {
-    const pathname = usePathname();
-
-    const adminLinks = [
-        { path: '/dashboard/admin', label: 'Dashboard', icon: LayoutDashboard },
-        { path: '/dashboard/admin/employers', label: 'Employers', icon: Building2 },
-        { path: '/dashboard/admin/employees', label: 'Employees', icon: Users },
-        { path: '/dashboard/admin/workers', label: 'Workers', icon: UserCircle },
-        { path: '/dashboard/admin/sub-agents', label: 'Sub Agents', icon: UserCheck },
-        { path: '/dashboard/admin/reports', label: 'Reports', icon: FileText },
->>>>>>> 0a911a1833dde46d555a4decd6b56aa5dd142542
         { path: '/settings', label: 'Settings', icon: Settings },
     ];
 
-    // Employee paths updated to match your folder structure
     const employeeLinks = [
         { path: '/dashboard/employee', label: 'Dashboard', icon: LayoutDashboard },
-<<<<<<< HEAD
         { path: '/dashboard/employee/employers', label: 'Employers', icon: Building2 },
-=======
-        { path: '/dashboard/employee/employer', label: 'Employers', icon: Building2 },
->>>>>>> 0a911a1833dde46d555a4decd6b56aa5dd142542
         { path: '/dashboard/employee/job-demands', label: 'Job Demands', icon: Briefcase },
         { path: '/dashboard/employee/workers', label: 'Workers', icon: UserCircle },
         { path: '/dashboard/employee/sub-agents', label: 'Sub Agents', icon: UserCheck },
@@ -72,29 +50,17 @@ export function Sidebar({ role, onLogout }) {
             <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
                 {links.map((link) => {
                     const Icon = link.icon;
-<<<<<<< HEAD
-                    const isActive = currentPath.startsWith(link.path);
-=======
+                    // Logic to highlight the active link
                     const isActive = pathname === link.path || pathname.startsWith(`${link.path}/`);
->>>>>>> 0a911a1833dde46d555a4decd6b56aa5dd142542
 
                     return (
                         <Link
                             key={link.path}
-<<<<<<< HEAD
-                            onClick={() => onNavigate(link.path)}
-                            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${isActive
-                                ? 'bg-blue-50 text-blue-700 shadow-sm ring-1 ring-blue-200'
-                                : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
-                                }`}
-=======
                             href={link.path}
-                            className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
-                                isActive
+                            className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${isActive
                                     ? 'bg-blue-50 text-blue-700 shadow-sm ring-1 ring-blue-200'
                                     : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
-                            }`}
->>>>>>> 0a911a1833dde46d555a4decd6b56aa5dd142542
+                                }`}
                         >
                             <Icon size={20} className={isActive ? 'text-blue-600' : 'text-gray-500'} />
                             <span>{link.label}</span>
