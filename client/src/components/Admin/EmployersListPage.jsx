@@ -4,10 +4,10 @@ import { Badge } from '../ui/Badge';
 import { Card, CardContent, CardHeader } from '../ui/Card';
 import { Input } from '../ui/Input';
 
-export function EmployersListPage({ employers = [] }) {
+// Added onSelectEmployer prop to the component
+export function EmployersListPage({ employers = [], onSelectEmployer }) {
     const [searchTerm, setSearchTerm] = useState('');
 
-    // Updated to filter using 'employerName' to match your Backend Schema
     const filtered = employers.filter(emp =>
         emp.employerName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         emp.country?.toLowerCase().includes(searchTerm.toLowerCase())
@@ -51,10 +51,16 @@ export function EmployersListPage({ employers = [] }) {
                             <tbody className="divide-y">
                                 {filtered.length > 0 ? (
                                     filtered.map((employer) => (
-                                        <tr key={employer._id} className="hover:bg-gray-50 transition-colors">
+                                        <tr
+                                            key={employer._id}
+                                            // Added cursor pointer and hover effect
+                                            className="hover:bg-blue-50/50 cursor-pointer transition-colors group"
+                                            // Added onClick to switch to detail view
+                                            onClick={() => onSelectEmployer(employer)}
+                                        >
                                             <td className="py-4 px-4 font-medium text-gray-900">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="p-2 bg-blue-50 text-blue-600 rounded-lg">
+                                                    <div className="p-2 bg-blue-50 text-blue-600 rounded-lg group-hover:bg-blue-100 transition-colors">
                                                         <Building2 size={16} />
                                                     </div>
                                                     {employer.employerName}
