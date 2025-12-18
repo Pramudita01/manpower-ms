@@ -6,134 +6,117 @@ import {
   MapPin, 
   Phone, 
   Search, 
-  Plus, 
-  ArrowRight 
+  Plus 
 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/Card';
+import { Card, CardContent, CardHeader } from '../ui/Card';
 import { Input } from '../ui/Input';
 import { Button } from '../ui/Button';
 import { Badge } from '../ui/Badge';
 
 export function EmployerListPage({ employers = [], onNavigate, onSelectEmployer }) {
-  const [searchTerm, setSearchTerm] = useState('');
+    const [searchTerm, setSearchTerm] = useState('');
 
-  // Filter logic matching your Backend Schema (employerName)
-  const filtered = employers.filter(emp =>
-    (emp.employerName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (emp.country || '').toLowerCase().includes(searchTerm.toLowerCase())
-  );
+    // Filter logic using 'employerName' to match your Backend Schema
+    const filtered = employers.filter(emp =>
+        (emp.employerName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (emp.country || '').toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
-  return (
-    <div className="space-y-6">
-      {/* Header Section */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Employers Management</h1>
-          <p className="text-gray-500 mt-1">View and manage all registered hiring companies</p>
-        </div>
-        <Button 
-          onClick={() => onNavigate('add')}
-          className="bg-blue-600 hover:bg-blue-700 text-white shadow-md transition-all flex items-center gap-2"
-        >
-          <Plus size={18} />
-          Add New Employer
-        </Button>
-      </div>
-
-      {/* Main Content Card */}
-      <Card className="border-none shadow-sm overflow-hidden">
-        <CardHeader className="bg-white border-b border-gray-100 py-5">
-          <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-            <CardTitle className="text-lg font-semibold text-gray-800">
-              Directory <span className="text-sm font-normal text-gray-400 ml-2">({filtered.length} total)</span>
-            </CardTitle>
-            <div className="relative w-full sm:max-w-xs">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-              <Input
-                placeholder="Search name or country..."
-                className="pl-10 h-10 border-gray-200 focus:border-blue-400 focus:ring-blue-100"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
+    return (
+        <div className="space-y-6">
+            {/* Header Section */}
+            <div className="flex justify-between items-center">
+                <div>
+                    <h1 className="text-3xl font-bold text-gray-900">Employers Management</h1>
+                    <p className="text-gray-500">View and manage all registered hiring companies</p>
+                </div>
+                <Button 
+                    onClick={() => onNavigate('add')}
+                    className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2"
+                >
+                    <Plus size={18} /> Add New Employer
+                </Button>
             </div>
-          </div>
-        </CardHeader>
-        
-        <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-gray-50/50 text-xs font-bold text-gray-500 uppercase tracking-wider">
-                  <th className="py-4 px-6">Company Name</th>
-                  <th className="py-4 px-6">Location</th>
-                  <th className="py-4 px-6">Contact</th>
-                  <th className="py-4 px-6">Address</th>
-                  <th className="py-4 px-6 text-center">Status</th>
-                  <th className="py-4 px-6"></th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {filtered.length > 0 ? (
-                  filtered.map((employer) => (
-                    <tr 
-                      key={employer._id} 
-                      className="group hover:bg-blue-50/30 transition-all cursor-pointer"
-                      onClick={() => onSelectEmployer(employer)}
-                    >
-                      <td className="py-4 px-6">
-                        <div className="flex items-center gap-3">
-                          <div className="p-2.5 bg-blue-50 text-blue-600 rounded-xl group-hover:bg-blue-600 group-hover:text-white transition-colors duration-200">
-                            <Building2 size={18} />
-                          </div>
-                          <span className="font-semibold text-gray-900">{employer.employerName}</span>
+
+            {/* Table Card */}
+            <Card>
+                <CardHeader>
+                    <div className="flex items-center gap-4">
+                        <div className="relative flex-1 max-w-sm">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                            <Input
+                                placeholder="Search by name or country..."
+                                className="pl-10"
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                            />
                         </div>
-                      </td>
-                      <td className="py-4 px-6">
-                        <div className="flex items-center gap-2 text-gray-600">
-                          <Globe size={14} className="text-blue-400" /> 
-                          <span className="text-sm">{employer.country}</span>
-                        </div>
-                      </td>
-                      <td className="py-4 px-6 text-gray-600">
-                        <div className="flex items-center gap-2">
-                          <Phone size={14} className="text-gray-400" />
-                          <span className="text-sm">{employer.contact}</span>
-                        </div>
-                      </td>
-                      <td className="py-4 px-6 text-gray-600">
-                        <div className="flex items-center gap-2 max-w-[220px]">
-                          <MapPin size={14} className="text-gray-400 flex-shrink-0" />
-                          <span className="text-sm truncate">{employer.address}</span>
-                        </div>
-                      </td>
-                      <td className="py-4 px-6 text-center">
-                        <Badge variant={employer.status === 'active' || !employer.status ? 'success' : 'default'}>
-                          {employer.status || 'Active'}
-                        </Badge>
-                      </td>
-                      <td className="py-4 px-6 text-right">
-                        <ArrowRight size={16} className="text-gray-300 group-hover:text-blue-500 transition-colors" />
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="6" className="py-20 text-center">
-                      <div className="flex flex-col items-center justify-center space-y-3">
-                        <div className="p-4 bg-gray-50 rounded-full">
-                           <Search size={32} className="text-gray-300" />
-                        </div>
-                        <p className="text-gray-500 font-medium">No employers found</p>
-                        <p className="text-gray-400 text-sm">Try adjusting your search filters</p>
-                      </div>
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
+                    </div>
+                </CardHeader>
+                <CardContent>
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left border-collapse">
+                            <thead>
+                                <tr className="border-b text-sm font-semibold text-gray-600 uppercase">
+                                    <th className="py-4 px-4">Company Name</th>
+                                    <th className="py-4 px-4">Location</th>
+                                    <th className="py-4 px-4">Contact</th>
+                                    <th className="py-4 px-4">Address</th>
+                                    <th className="py-4 px-4">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y">
+                                {filtered.length > 0 ? (
+                                    filtered.map((employer) => (
+                                        <tr 
+                                            key={employer._id} 
+                                            onClick={() => onSelectEmployer(employer)}
+                                            className="hover:bg-gray-50 transition-colors cursor-pointer"
+                                        >
+                                            <td className="py-4 px-4 font-medium text-gray-900">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="p-2 bg-blue-50 text-blue-600 rounded-lg">
+                                                        <Building2 size={16} />
+                                                    </div>
+                                                    {employer.employerName}
+                                                </div>
+                                            </td>
+                                            <td className="py-4 px-4 text-gray-600">
+                                                <div className="flex items-center gap-2">
+                                                    <Globe size={14} /> {employer.country}
+                                                </div>
+                                            </td>
+                                            <td className="py-4 px-4 text-gray-600">
+                                                <div className="flex items-center gap-2">
+                                                    <Phone size={14} className="text-gray-400" />
+                                                    {employer.contact}
+                                                </div>
+                                            </td>
+                                            <td className="py-4 px-4 text-gray-600">
+                                                <div className="flex items-center gap-2">
+                                                    <MapPin size={14} className="text-gray-400" />
+                                                    <span className="truncate max-w-[200px]">{employer.address}</span>
+                                                </div>
+                                            </td>
+                                            <td className="py-4 px-4">
+                                                <Badge variant={employer.status === 'active' || !employer.status ? 'success' : 'default'}>
+                                                    {employer.status || 'Active'}
+                                                </Badge>
+                                            </td>
+                                        </tr>
+                                    ))
+                                ) : (
+                                    <tr>
+                                        <td colSpan="5" className="py-10 text-center text-gray-500">
+                                            No employers found in the database.
+                                        </td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                </CardContent>
+            </Card>
+        </div>
+    );
 }
