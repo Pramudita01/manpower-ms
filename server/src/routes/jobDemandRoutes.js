@@ -1,11 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const { 
-    getJobDemands, 
+const {
+    getJobDemands,
     createJobDemand,
     updateJobDemand,
-    deleteJobDemand 
-} = require('../controllers/JobDemandController');
+    deleteJobDemand,
+    getEmployerJobDemands
+} = require('../controllers/jobDemandController');
 const { protect } = require('../middleware/auth');
 
 router.route('/')
@@ -15,5 +16,7 @@ router.route('/')
 router.route('/:id')
     .put(protect, updateJobDemand)
     .delete(protect, deleteJobDemand);
+
+router.get('/employer/:employerId', protect, getEmployerJobDemands);
 
 module.exports = router;

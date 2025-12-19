@@ -8,20 +8,49 @@ import {
     User,
     Users
 } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { Badge } from '../ui/Badge';
 import { Button } from '../ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/Card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/Table';
 
 export function EmployerDetailPage({ employer, onBack }) {
+    const [demands, setDemands] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchEmployerDemands = async () => {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`http://localhost:5000/api/job-demands/employer/${employer._id}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                const result = await response.json();
+                if (result.success) {
+                    setDemands(result.data);
+                }
+            } catch (err) {
+                console.error("Error fetching employer demands:", err);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        if (employer?._id) {
+            fetchEmployerDemands();
+        }
+    }, [employer._id]);
+
     if (!employer) return null;
 
-    // Helper to handle the populated object or a fallback ID string
     const creatorName = employer.createdBy?.fullName || (typeof employer.createdBy === 'string' ? employer.createdBy : 'System Admin');
 
     return (
         <div className="space-y-6">
-            {/* Header Section - Action Buttons Removed */}
+            {/* Header Section */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
                 <div className="flex items-center gap-4">
                     <Button variant="outline" size="icon" onClick={onBack} className="rounded-full hover:bg-gray-100 transition-colors">
@@ -47,8 +76,9 @@ export function EmployerDetailPage({ employer, onBack }) {
                 <Card className="border-l-4 border-l-blue-500 shadow-sm">
                     <CardContent className="flex items-center justify-between p-6">
                         <div>
-                            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Active Demands</p>
-                            <p className="text-3xl font-bold text-gray-900 mt-1">12</p>
+                            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Total Demands</p>
+                            {/* DYNAMIC COUNT */}
+                            <p className="text-3xl font-bold text-gray-900 mt-1">{isLoading ? '...' : demands.length}</p>
                         </div>
                         <div className="p-3 bg-blue-50 text-blue-600 rounded-xl">
                             <Briefcase size={24} />
@@ -60,7 +90,7 @@ export function EmployerDetailPage({ employer, onBack }) {
                     <CardContent className="flex items-center justify-between p-6">
                         <div>
                             <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Total Hired</p>
-                            <p className="text-3xl font-bold text-gray-900 mt-1">148</p>
+                            <p className="text-3xl font-bold text-gray-900 mt-1">0</p>
                         </div>
                         <div className="p-3 bg-green-50 text-green-600 rounded-xl">
                             <Users size={24} />
@@ -72,7 +102,7 @@ export function EmployerDetailPage({ employer, onBack }) {
                     <CardContent className="flex items-center justify-between p-6">
                         <div>
                             <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Retention Rate</p>
-                            <p className="text-3xl font-bold text-gray-900 mt-1">94%</p>
+                            <p className="text-3xl font-bold text-gray-900 mt-1">100%</p>
                         </div>
                         <div className="p-3 bg-purple-50 text-purple-600 rounded-xl">
                             <Building2 size={24} />
@@ -125,72 +155,55 @@ export function EmployerDetailPage({ employer, onBack }) {
                     </Card>
                 </div>
 
-                {/* Right Column: Tables */}
+                {/* Right Column: Dynamic Job Demand Table */}
                 <div className="lg:col-span-2 space-y-6">
                     <Card className="shadow-sm overflow-hidden border-none">
                         <CardHeader className="flex flex-row items-center justify-between bg-gray-50/50 border-b">
-                            <CardTitle className="text-lg font-bold">Recent Job Demands</CardTitle>
-                            <Badge variant="outline" className="text-[10px] uppercase font-bold">History</Badge>
+                            <CardTitle className="text-lg font-bold">Job Demands</CardTitle>
+                            <Badge variant="outline" className="text-[10px] uppercase font-bold">Live Data</Badge>
                         </CardHeader>
                         <CardContent className="p-0">
                             <Table>
                                 <TableHeader className="bg-gray-50">
                                     <TableRow>
-                                        <TableHead className="pl-6">Category</TableHead>
+                                        <TableHead className="pl-6">Job Title</TableHead>
                                         <TableHead>Quota</TableHead>
-                                        <TableHead>Filled</TableHead>
+                                        <TableHead>Deadline</TableHead>
                                         <TableHead className="pr-6 text-right">Status</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {[
-                                        { cat: 'HVAC Tech', q: 10, f: 8, s: 'In Progress' },
-                                        { cat: 'Civil Engineer', q: 2, f: 2, s: 'Completed' },
-                                        { cat: 'Safety Officer', q: 5, f: 0, s: 'Open' },
-                                    ].map((job, i) => (
-                                        <TableRow key={i} className="hover:bg-gray-50/30 transition-colors">
-                                            <TableCell className="font-semibold pl-6 text-gray-800">{job.cat}</TableCell>
-                                            <TableCell className="text-gray-600">{job.q}</TableCell>
-                                            <TableCell className="text-gray-600">{job.f}</TableCell>
-                                            <TableCell className="pr-6 text-right">
-                                                <Badge className="font-medium" variant={job.s === 'Completed' ? 'success' : 'default'}>{job.s}</Badge>
+                                    {isLoading ? (
+                                        <TableRow>
+                                            <TableCell colSpan={4} className="text-center py-10 text-gray-400">Loading demands...</TableCell>
+                                        </TableRow>
+                                    ) : demands.length > 0 ? (
+                                        demands.map((job) => (
+                                            <TableRow key={job._id} className="hover:bg-gray-50/30 transition-colors">
+                                                <TableCell className="font-semibold pl-6 text-gray-800">{job.jobTitle}</TableCell>
+                                                <TableCell className="text-gray-600">{job.requiredWorkers}</TableCell>
+                                                <TableCell className="text-gray-600">
+                                                    {new Date(job.deadline).toLocaleDateString()}
+                                                </TableCell>
+                                                <TableCell className="pr-6 text-right">
+                                                    <Badge
+                                                        className="font-medium"
+                                                        variant={job.status === 'open' ? 'success' : 'secondary'}
+                                                    >
+                                                        {job.status}
+                                                    </Badge>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))
+                                    ) : (
+                                        <TableRow>
+                                            <TableCell colSpan={4} className="text-center py-10 text-gray-400">
+                                                No job demands found for this employer.
                                             </TableCell>
                                         </TableRow>
-                                    ))}
+                                    )}
                                 </TableBody>
                             </Table>
-                        </CardContent>
-                    </Card>
-
-                    <Card className="shadow-sm overflow-hidden">
-                        <CardHeader className="flex flex-row items-center justify-between bg-gray-50/50 border-b">
-                            <CardTitle className="text-lg font-bold">Latest Hires</CardTitle>
-                            <Badge variant="outline" className="text-[10px] uppercase font-bold">Verified</Badge>
-                        </CardHeader>
-                        <CardContent className="p-6">
-                            <div className="space-y-6">
-                                {[
-                                    { name: "John Doe", pos: "Electrician", date: "Oct 12, 2024" },
-                                    { name: "Arjun Singh", pos: "Pipe Fitter", date: "Oct 10, 2024" },
-                                    { name: "Hassan Malik", pos: "Driver", date: "Oct 08, 2024" }
-                                ].map((hire, i) => (
-                                    <div key={i} className="flex items-center justify-between group">
-                                        <div className="flex items-center gap-4">
-                                            <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-sm font-bold text-blue-600 border border-blue-200 group-hover:bg-blue-600 group-hover:text-white transition-all">
-                                                {hire.name.charAt(0)}
-                                            </div>
-                                            <div>
-                                                <p className="text-sm font-bold text-gray-900">{hire.name}</p>
-                                                <p className="text-xs text-gray-500 font-medium">{hire.pos}</p>
-                                            </div>
-                                        </div>
-                                        <div className="text-right">
-                                            <p className="text-xs font-bold text-gray-400">{hire.date}</p>
-                                            <p className="text-[10px] text-green-600 font-bold uppercase tracking-wider">Placement OK</p>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
                         </CardContent>
                     </Card>
                 </div>
