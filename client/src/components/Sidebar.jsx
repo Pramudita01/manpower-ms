@@ -6,8 +6,6 @@ import {
     FileText,
     LayoutDashboard,
     LogOut,
-    PlusCircle // Added for quick action
-    ,
     Settings,
     UserCheck,
     UserCircle,
@@ -23,18 +21,8 @@ export function Sidebar({ role, onLogout }) {
     const adminLinks = [
         { path: '/dashboard/tenant-admin', label: 'Dashboard', icon: LayoutDashboard, exact: true },
         { path: '/dashboard/tenant-admin/employers', label: 'Employers', icon: Building2 },
-<<<<<<< HEAD
-        {
-            path: '/dashboard/tenant-admin/employees',
-            label: 'Employees',
-            icon: Users,
-            quickAction: '/dashboard/tenant-admin/employees?action=add' // Special parameter
-        },
-        { path: '/dashboard/tenant-admin/workers', label: 'Workers', icon: UserCircle },
-=======
         { path: '/dashboard/tenant-admin/employees', label: 'Employees', icon: Users },
         { path: '/dashboard/tenant-admin/worker', label: 'Workers', icon: UserCircle },
->>>>>>> 00e13b261a05b0b28d0d90e1d9bda3069c32d3ea
         { path: '/dashboard/tenant-admin/sub-agents', label: 'Sub Agents', icon: UserCheck },
         { path: '/dashboard/tenant-admin/reports', label: 'Reports', icon: FileText },
         { path: '/settings', label: 'Settings', icon: Settings },
@@ -68,71 +56,31 @@ export function Sidebar({ role, onLogout }) {
             </div>
 
             {/* Navigation Links */}
-<<<<<<< HEAD
-            <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-                {links.map((link) => {
-                    const Icon = link.icon;
-                    const isActive = link.exact
-                        ? pathname === link.path
-                        : pathname.startsWith(link.path);
-
-                    return (
-                        <div key={link.path} className="relative group">
-                            <Link
-                                href={link.path}
-                                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${isActive
-                                    ? 'bg-blue-50 text-blue-700 shadow-sm ring-1 ring-blue-100'
-                                    : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'
-                                    }`}
-                            >
-                                <Icon
-                                    size={19}
-                                    className={`transition-colors duration-200 ${isActive ? 'text-blue-600' : 'text-gray-400 group-hover:text-gray-600'}`}
-                                />
-                                <span className="flex-1">{link.label}</span>
-
-                                {isActive && !link.quickAction && (
-                                    <div className="w-1.5 h-1.5 bg-blue-600 rounded-full animate-pulse" />
-                                )}
-                            </Link>
-
-                            {/* Quick Action "+" Button for Adding Employee */}
-                            {link.quickAction && (
-                                <Link
-                                    href={link.quickAction}
-                                    className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-gray-400 hover:text-blue-600 hover:bg-white rounded-lg opacity-0 group-hover:opacity-100 transition-all shadow-sm border border-transparent hover:border-blue-100"
-                                    title={`Add New ${link.label.slice(0, -1)}`}
-                                >
-                                    <PlusCircle size={16} />
-                                </Link>
-=======
             <nav className="flex-1 p-4 space-y-1 overflow-y-auto custom-scrollbar">
                 {links.map((link) => {
                     const Icon = link.icon;
-                    
+
                     // Logic to check if path is active (including nested routes like /sub-agents/add)
-                    const isActive = link.exact 
-                        ? pathname === link.path 
+                    const isActive = link.exact
+                        ? pathname === link.path
                         : pathname.startsWith(link.path);
 
                     return (
                         <Link
                             key={link.path}
                             href={link.path}
-                            className={`group flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
-                                isActive
+                            className={`group flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${isActive
                                     ? 'bg-blue-50 text-blue-700 shadow-sm ring-1 ring-blue-100'
                                     : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'
-                            }`}
+                                }`}
                         >
-                            <Icon 
-                                size={19} 
-                                className={`transition-colors duration-200 ${
-                                    isActive ? 'text-blue-600' : 'text-gray-400 group-hover:text-gray-600'
-                                }`} 
+                            <Icon
+                                size={19}
+                                className={`transition-colors duration-200 ${isActive ? 'text-blue-600' : 'text-gray-400 group-hover:text-gray-600'
+                                    }`}
                             />
                             <span className="flex-1">{link.label}</span>
-                            
+
                             {/* Active Indicator or Notification Dot */}
                             {isActive ? (
                                 <div className="w-1.5 h-1.5 bg-blue-600 rounded-full animate-pulse" />
@@ -143,9 +91,8 @@ export function Sidebar({ role, onLogout }) {
                                         Partner
                                     </span>
                                 )
->>>>>>> 00e13b261a05b0b28d0d90e1d9bda3069c32d3ea
                             )}
-                        </div>
+                        </Link>
                     );
                 })}
             </nav>
