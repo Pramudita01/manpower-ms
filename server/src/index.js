@@ -8,6 +8,7 @@ const authRoutes = require('./routes/auth'); // NEW: Import Routes
 const employerRoutes = require('./routes/employerRoutes');
 const jobDemandRoutes = require('./routes/jobDemandRoutes');
 const workerRoutes = require('./routes/workerRoutes');
+const subAgentRoutes = require('./routes/subAgentRoutes'); // NEW: SubAgent Routes
 
 
 // Load environment variables from .env file
@@ -38,6 +39,7 @@ app.use('/api/job-demands', jobDemandRoutes);
 app.use('/api/workers', workerRoutes);
 const path = require('path');
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/api/sub-agents', subAgentRoutes); // NEW: SubAgent Routes
 
 
 // Database Connection (MOVED UP)
