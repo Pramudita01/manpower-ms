@@ -22,7 +22,7 @@ import {
     TableHead,
     TableHeader,
     TableRow,
-} from '../ui/table';
+} from '../ui/Table';
 
 export function EmployerListPage({ employers = [], onNavigate, onSelectEmployer, onDelete }) {
     const [searchTerm, setSearchTerm] = useState('');
