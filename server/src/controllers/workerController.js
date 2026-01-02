@@ -3,52 +3,84 @@ const mongoose = require('mongoose');
 
 exports.addWorker = async (req, res) => {
   try {
-    const { passportNumber, dob, country, status, currentStage } = req.body;
+    const { passportNumber, dob, country, status, currentStage, employerId, jobDemandId, subAgentId, notes } = req.body;
 
-    // 1. Strict ID Check from Middleware
+    // 1. Authentication Check
     const creatorId = req.user.userId;
     const companyId = req.user.companyId;
 
     if (!creatorId || !companyId) {
-      return res.status(401).json({
-        success: false,
-        message: 'Authentication failed. Please log in again.'
-      });
+      return res.status(401).json({ success: false, message: 'Authentication failed.' });
     }
 
-    // 2. Prevent Duplicate Passport
+    // 2. Duplicate Check
     const existingWorker = await Worker.findOne({ passportNumber });
     if (existingWorker) {
-      return res.status(400).json({ success: false, message: 'Passport already exists.' });
+      return res.status(400).json({ success: false, message: 'Passport number already registered.' });
     }
 
-    // 3. Handle Documents
-    const documentFiles = req.files ? req.files.map(f => ({ name: f.originalname, path: f.path })) : [];
+    // 3. Handle Categorized Documents
+    // We expect req.body.documentMetadata to be a stringified array from the frontend
+    let documentFiles = [];
+    if (req.files && req.files.length > 0) {
+      const metadata = req.body.documentMetadata ? JSON.parse(req.body.documentMetadata) : [];
+      
+      documentFiles = req.files.map((file, index) => ({
+        category: metadata[index]?.category || 'other',
+        name: metadata[index]?.name || file.originalname,
+        fileName: file.originalname,
+        fileSize: `${(file.size / 1024 / 1024).toFixed(2)} MB`,
+        fileUrl: file.path, // Path from Multer
+        uploadedAt: new Date(),
+        status: 'pending'
+      }));
+    }
 
-    const defaultTimeline = [
-      { stage: 'interview', status: 'pending', date: new Date() },
-      { stage: 'medical', status: 'pending', date: new Date() },
-      { stage: 'training', status: 'pending', date: new Date() },
-      { stage: 'visa', status: 'pending', date: new Date() },
+    // 4. Detailed Stage Timeline (11 Stages)
+    const detailedTimeline = [
+      { stage: 'document-collection', status: 'in-progress' },
+      { stage: 'document-verification', status: 'pending' },
+      { stage: 'interview', status: 'pending' },
+      { stage: 'medical-examination', status: 'pending' },
+      { stage: 'police-clearance', status: 'pending' },
+      { stage: 'training', status: 'pending' },
+      { stage: 'visa-application', status: 'pending' },
+      { stage: 'visa-approval', status: 'pending' },
+      { stage: 'ticket-booking', status: 'pending' },
+      { stage: 'pre-departure-orientation', status: 'pending' },
+      { stage: 'deployed', status: 'pending' },
     ];
 
-    // 4. Create Worker with FORCED ObjectId casting
+    // 5. Create Worker
     const newWorker = new Worker({
-      ...req.body,
-      dob: new Date(dob),
+      name: req.body.name,
+      dob: dob ? new Date(dob) : null,
+      passportNumber,
+      contact: req.body.contact,
+      address: req.body.address,
       country: country || 'Nepal',
       status: status || 'pending',
-      currentStage: currentStage || 'interview',
+      currentStage: currentStage || 'document-collection',
+      notes,
+      
+      // Relationship IDs
+      employerId: employerId ? new mongoose.Types.ObjectId(employerId) : null,
+      jobDemandId: jobDemandId ? new mongoose.Types.ObjectId(jobDemandId) : null,
+      subAgentId: subAgentId ? new mongoose.Types.ObjectId(subAgentId) : null,
+      
+      // Categorized Data
       documents: documentFiles,
-      stageTimeline: defaultTimeline,
-      // Force IDs to ObjectId to ensure the stats query finds them
+      stageTimeline: detailedTimeline,
+      
+      // Ownership
       createdBy: new mongoose.Types.ObjectId(creatorId),
-      assignedTo: new mongoose.Types.ObjectId(creatorId),
-      companyId: new mongoose.Types.ObjectId(companyId)
+      companyId: new mongoose.Types.ObjectId(companyId),
+      assignedTo: new mongoose.Types.ObjectId(creatorId)
     });
 
     await newWorker.save();
-    res.status(201).json({ success: true, message: 'Worker registered successfully', data: newWorker });
+    res.status(201).json({ success: true, data: newWorker });
+
   } catch (error) {
     console.error("Add Worker Error:", error);
     res.status(500).json({ success: false, message: error.message });

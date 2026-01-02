@@ -21,34 +21,50 @@ const WorkerSchema = new mongoose.Schema({
   },
   subAgentId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User', // Changed to User if sub-agents are in your User model
+    ref: 'User', 
   },
 
-  // SCRUM-10: Multi-tenant ownership
   companyId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Company',
     required: true
   },
 
-  // models/Worker.js
   status: {
     type: String,
-    // ADD 'active' HERE
-    enum: ['pending', 'processing', 'deployed', 'cancelled', 'active'],
+    enum: ['pending', 'processing', 'deployed', 'cancelled', 'active', 'rejected'],
     default: 'pending',
     lowercase: true,
   },
+
+  // UPDATED: Added more stages to match the frontend 11-stage pipeline
   currentStage: {
     type: String,
-    enum: ['interview', 'medical', 'training', 'visa', 'flight'],
-    default: 'interview'
+    enum: [
+      'document-collection', 
+      'document-verification', 
+      'interview', 
+      'medical-examination', 
+      'police-clearance', 
+      'training', 
+      'visa-application', 
+      'visa-approval', 
+      'ticket-booking', 
+      'pre-departure-orientation', 
+      'deployed'
+    ],
+    default: 'document-collection'
   },
 
+  // UPDATED: Added category, fileName, and fileSize to support the new upload UI
   documents: [
     {
-      name: String,
+      category: String, // e.g., 'passport', 'medical-certificate'
+      name: String,     // Custom name given by user
+      fileName: String, // Actual file name from disk
+      fileSize: String, 
       path: String,
+      status: { type: String, default: 'pending' },
       uploadedAt: { type: Date, default: Date.now },
     },
   ],
@@ -58,16 +74,16 @@ const WorkerSchema = new mongoose.Schema({
       stage: String,
       status: {
         type: String,
-        enum: ['pending', 'processing', 'completed'],
+        enum: ['pending', 'processing', 'in-progress', 'completed'],
         default: 'pending',
       },
       date: { type: Date, default: Date.now },
       notes: String,
     },
   ],
+  
   notes: String,
 
-  // Tracking fields for the "Workers Managed" count
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
@@ -79,8 +95,9 @@ const WorkerSchema = new mongoose.Schema({
   },
 }, { timestamps: true });
 
-// Indexing for faster counts in the Employee List
+// Indexing for performance
 WorkerSchema.index({ createdBy: 1 });
 WorkerSchema.index({ companyId: 1 });
+WorkerSchema.index({ passportNumber: 1 });
 
 module.exports = mongoose.model('Worker', WorkerSchema);
